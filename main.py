@@ -40,6 +40,18 @@ db_estaciones = [
     {"id": 1, "nombre": "Estación Norte", "ubicacion": "Bogota Norte", "conectores": 6, "estado": "activa"},
     {"id": 2, "nombre": "Estación Centro", "ubicacion": "Bogota Centro", "conectores": 4, "estado": "disponible"}
 ]
+
+class Pago(BaseModel):
+    id: int = Field(gt=0, description="ID del pago")
+    usuario: str = Field(min_length=3, max_length=50, description="Nombre del usuario")
+    monto: float = Field(gt=0, description="Monto del pago")
+    metodo: str = Field(min_length=3, max_length=30, description="Método de pago")
+    estado: str = Field(min_length=3, max_length=30, description="Estado del pago")
+
+db_pagos = [
+    {"id": 1, "usuario": "Carlos", "monto": 50000, "metodo": "tarjeta", "estado": "aprobado"},
+    {"id": 2, "usuario": "Laura", "monto": 35000, "metodo": "efectivo", "estado": "pendiente"}
+]
 @app.get("/usuarios")
 def obtener_usuarios():
     return {
@@ -134,3 +146,34 @@ def crear_estacion(estacion: Estacion):
         "estacion": estacion,
         "status": "success"
     }
+
+@app.get("/pagos")
+def obtener_pagos():
+    return {
+        "total": len(db_pagos),
+        "pagos": db_pagos,
+        "status": "success"
+    }
+
+@app.get("/pagos/{id}")
+def obtener_pago_por_id(
+    id: int = Path(..., gt=0, description="ID del pago")
+):
+    for pago in db_pagos:
+        if pago["id"] == id:
+            return {
+                "pago": pago,
+                "status": "success"
+            }
+
+    raise HTTPException(status_code=404, detail="Pago no encontrado")
+
+@app.post("/pagos", status_code=201)
+def crear_pago(pago: Pago):
+    db_pagos.append(pago.dict())
+
+    return {
+        "mensaje": "Pago registrado exitosamente",
+        "pago": pago,
+        "status": "success"
+ }
