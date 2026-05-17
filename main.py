@@ -60,3 +60,35 @@ def crear_usuario(usuario: Usuario):
         "usuario": usuario,
         "status": "success"
     }
+
+
+@app.get("/cargas")
+def obtener_cargas():
+    return {
+        "total": len(db_cargas),
+        "cargas": db_cargas,
+        "status": "success"
+    }
+
+@app.get("/cargas/{id}")
+def obtener_carga_por_id(
+    id: int = Path(..., gt=0, description="ID de la carga")
+):
+    for carga in db_cargas:
+        if carga["id"] == id:
+            return {
+                "carga": carga,
+                "status": "success"
+            }
+
+    raise HTTPException(status_code=404, detail="Carga no encontrada")
+
+@app.post("/cargas", status_code=201)
+def crear_carga(carga: Carga):
+    db_cargas.append(carga.dict())
+
+    return {
+        "mensaje": "Carga registrada exitosamente",
+        "carga": carga,
+        "status": "success"
+    }
