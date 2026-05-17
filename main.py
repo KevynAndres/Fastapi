@@ -18,7 +18,17 @@ db_usuarios = [
     {"id": 1, "nombre": "Carlos", "telefono": "3004567891", "correo": "carlos@gmail.com", "ciudad": "Bogota"},
     {"id": 2, "nombre": "Laura", "telefono": "3119876542", "correo": "laura@gmail.com", "ciudad": "Medellin"}
 ]
+class Carga(BaseModel):
+    id: int = Field(gt=0, description="ID de la carga")
+    energia: float = Field(gt=0, description="Cantidad de energía")
+    tiempo: int = Field(gt=0, description="Tiempo de carga")
+    costo: float = Field(gt=0, description="Costo de la carga")
+    estado: str = Field(min_length=3, max_length=30, description="Estado de la carga")
 
+db_cargas = [
+    {"id": 1, "energia": 45.5, "tiempo": 60, "costo": 30000, "estado": "completada"},
+    {"id": 2, "energia": 30.0, "tiempo": 40, "costo": 18000, "estado": "cargando"}
+]
 @app.get("/usuarios")
 def obtener_usuarios():
     return {
@@ -26,6 +36,7 @@ def obtener_usuarios():
         "usuarios": db_usuarios,
         "status": "success"
     }
+
 
 @app.get("/usuarios/{id}")
 def obtener_usuario_por_id(
