@@ -29,6 +29,17 @@ db_cargas = [
     {"id": 1, "energia": 45.5, "tiempo": 60, "costo": 30000, "estado": "completada"},
     {"id": 2, "energia": 30.0, "tiempo": 40, "costo": 18000, "estado": "cargando"}
 ]
+class Estacion(BaseModel):
+    id: int = Field(gt=0, description="ID de la estación")
+    nombre: str = Field(min_length=3, max_length=50, description="Nombre de la estación")
+    ubicacion: str = Field(min_length=5, max_length=100, description="Ubicación de la estación")
+    conectores: int = Field(gt=0, description="Cantidad de conectores")
+    estado: str = Field(min_length=3, max_length=30, description="Estado de la estación")
+
+db_estaciones = [
+    {"id": 1, "nombre": "Estación Norte", "ubicacion": "Bogota Norte", "conectores": 6, "estado": "activa"},
+    {"id": 2, "nombre": "Estación Centro", "ubicacion": "Bogota Centro", "conectores": 4, "estado": "disponible"}
+]
 @app.get("/usuarios")
 def obtener_usuarios():
     return {
@@ -90,5 +101,36 @@ def crear_carga(carga: Carga):
     return {
         "mensaje": "Carga registrada exitosamente",
         "carga": carga,
+        "status": "success"
+    }
+
+@app.get("/estaciones")
+def obtener_estaciones():
+    return {
+        "total": len(db_estaciones),
+        "estaciones": db_estaciones,
+        "status": "success"
+    }
+
+@app.get("/estaciones/{id}")
+def obtener_estacion_por_id(
+    id: int = Path(..., gt=0, description="ID de la estación")
+):
+    for estacion in db_estaciones:
+        if estacion["id"] == id:
+            return {
+                "estacion": estacion,
+                "status": "success"
+            }
+
+    raise HTTPException(status_code=404, detail="Estación no encontrada")
+
+@app.post("/estaciones", status_code=201)
+def crear_estacion(estacion: Estacion):
+    db_estaciones.append(estacion.dict())
+
+    return {
+        "mensaje": "Estación registrada exitosamente",
+        "estacion": estacion,
         "status": "success"
     }
